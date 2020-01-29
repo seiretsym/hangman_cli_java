@@ -9,8 +9,9 @@ public class app {
   static class Word {
     ArrayList<Letter> letters = new ArrayList<Letter>();
     String guesses = "";
+    int remainingGuesses = 10;
 
-    public Word (final String newWord) {
+    public Word (String newWord) {
       createWord(newWord);
     }
 
@@ -22,14 +23,14 @@ public class app {
       System.out.println(word);
     }
 
-    public void createWord(final String word) {
+    public void createWord(String word) {
       for (int i = 0; i < word.length(); i++) {
-        final Letter temp = new Letter(word.charAt(i));
+        Letter temp = new Letter(word.charAt(i));
         letters.add(temp);
       }
     }
 
-    public void guessLetter(final char letter) {
+    public void guessLetter(char letter) {
       for (int i = 0; i < letters.size(); i++) {
         letters.get(i).guessLetter(letter);
       }
@@ -49,7 +50,7 @@ public class app {
     char letter;
     boolean revealed = false;
 
-    public Letter(final char userInput) {
+    public Letter(char userInput) {
       letter = userInput;
       if (letter == ' ' || letter == '\'' || letter == '-') {
         revealed = true;
@@ -64,29 +65,29 @@ public class app {
       }
     }
 
-    public void guessLetter(final char guess) {
+    public void guessLetter(char guess) {
       if (guess == letter && revealed == false) {
         revealed = true;
       }
     }
   }
 
-  public static void main(final String[] args) {
+  public static void main(String[] args) {
     init();
   }
 
   // method to read words from a txt file and return an arraylist
-  static ArrayList<String> readTxtFile(final String filename) {
-    final ArrayList<String> allWords = new ArrayList<String>();
+  static ArrayList<String> readTxtFile(String filename) {
+    ArrayList<String> allWords = new ArrayList<String>();
 
     try {
-      final File txtFile = new File(filename);
-      final Scanner words = new Scanner(txtFile);
+      File txtFile = new File(filename);
+      Scanner words = new Scanner(txtFile);
       while (words.hasNextLine()) {
         allWords.add(words.nextLine());
       }
       words.close();
-    } catch (final FileNotFoundException error) {
+    } catch (FileNotFoundException error) {
       System.out.println("Error: ");
       error.printStackTrace();
     }
@@ -95,27 +96,31 @@ public class app {
   }
 
   // method to get a random word from an ArrayList
-  static String getRandomWord(final ArrayList<String> words) {
-    final int rng = (int) (Math.random() * words.size());
+  static String getRandomWord(ArrayList<String> words) {
+    int rng = (int) (Math.random() * words.size());
     return words.get(rng).toLowerCase();
   }
 
   static void init() {
-    final ArrayList<String> words = readTxtFile("words.txt");
-    final String randomWord = getRandomWord(words);
-    final Word newWord = new Word(randomWord);
+    ArrayList<String> words = readTxtFile("words.txt");
+    String randomWord = getRandomWord(words);
+    Word newWord = new Word(randomWord);
     System.out.println("Java CLI Hangman");
 
     printWord(newWord);
   }
 
-  static void printWord(final Word word) {
-    System.out.print("\nYour Word: ");
-    word.printWord();
-    guess(word);
+  static void printWord(Word word) {
+    if (word.remainingGuesses > 0) {
+      System.out.print("\nYour Word: ");
+      word.printWord();
+      guess(word);
+    } else {
+      gameOver(word, false);
+    }
   }
 
-  static void checkWord(final Word word) {
+  static void checkWord(Word word) {
     if (word.checkWord()) {
       gameOver(word, true);
     } else {
@@ -123,25 +128,47 @@ public class app {
     }
   }
 
-  static void gameOver(final Word word, final boolean win) {
+  static void gameOver(Word word, boolean win) {
     if (win) {
       System.out.print("You guessed the word: ");
       word.printWord();
+    } else {
+      System.out.println("You ran out of guesses!");
+      System.out.print("The word was: ");
+      word.printWord();
+    }
+    reInit();
+  }
+
+  static void reInit() {
+    Scanner userInput = new Scanner(System.in);
+    System.out.print("\nWould you like to play again? [y/n] ");
+    String answer = userInput.nextLine().toLowerCase();
+    if (answer.charAt(0) == 'y') {
+      init();
+    } else if (answer.charAt(0) == 'n') {
+      System.out.println("Thank you for playing!");
+    } else {
+      System.out.println("Invalid choice!");
+      reInit();
     }
   }
 
-  static void guess(final Word word) {
-    final Scanner userInput = new Scanner(System.in);
+  static void guess(Word word) {
+    Scanner userInput = new Scanner(System.in);
     System.out.print("Letters Used: ");
     printGuesses(word);
     System.out.print("Your Guess: ");
     String guess = userInput.nextLine().toLowerCase();
-    if (guess.length() > 1) {
+    if (guess.length() != 1) {
       System.out.println("Please input a single character.");
       printWord(word);
     } else {
-      final char letter = guess.charAt(0);
-      if (word.guesses.indexOf(letter) != -1) {
+      char letter = guess.charAt(0);
+      if (!guess.matches("[a-z]")) {
+        System.out.println("Please guess a letter in the alphabet!");
+        printWord(word);
+      } else if (word.guesses.indexOf(letter) != -1) {
         System.out.println("You've already guessed that letter!");
         printWord(word);
       } else {
@@ -152,7 +179,7 @@ public class app {
     }
   }
 
-  static void printGuesses(final Word word) {
+  static void printGuesses(Word word) {
     String guesses = "";
     for (int i = 0; i < word.guesses.length(); i++) {
       if (i != word.guesses.length() - 1) {
