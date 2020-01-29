@@ -6,38 +6,71 @@ import java.util.ArrayList;
 
 public class app {
 
+  static class Word {
+    ArrayList<Letter> letters = new ArrayList<Letter>();
+    boolean revealed = false;
+
+    public Word (String newWord) {
+      createWord(newWord);
+    }
+
+    public void printWord() {
+      String word = "";
+      for (int i = 0; i < letters.size(); i++) {
+        word += letters.get(i).printLetter() + " ";
+      }
+      System.out.println(word);
+    }
+
+    public void createWord(String word) {
+      for (int i = 0; i < word.length(); i++) {
+        Letter temp = new Letter(word.charAt(i));
+        letters.add(temp);
+      }
+    }
+
+    public void guessLetter(char letter) {
+      for (int i = 0; i < letters.size(); i++) {
+        letters.get(i).guessLetter(letter);
+      }
+    }
+
+    public void checkWord() {
+      for (int i = 0; i < letters.size(); i++) {
+        if (letters.get(i).revealed == false) {
+          break;
+        } else {
+          revealed = true;
+        }
+      }
+    }
+  }
+
   static class Letter {
     char letter;
-    boolean revealed;
+    boolean revealed = false;
 
     public Letter(char userInput) {
       letter = userInput;
     }
 
-    public void printLetter() {
+    public char printLetter() {
       if (revealed == true) {
-        System.out.print(letter);
+        return letter;
       } else {
-        System.out.print("_");
+        return '_';
       }
     }
 
     public void guessLetter(char guess) {
-      if (guess == letter) {
+      if (guess == letter && revealed == false) {
         revealed = true;
       }
     }
   }
 
   public static void main(final String[] args) {
-    final ArrayList<String> words = readTxtFile("words.txt");
-    System.out.println(words);
-    final String randomWord = getRandomWord(words);
-    System.out.println(randomWord);
-    for (int i = 0; i < randomWord.length(); i++) {
-      Letter temp = new Letter(randomWord.charAt(i));
-      temp.printLetter();
-    }
+    init();
   }
 
   // method to read words from a txt file and return an arraylist
@@ -65,26 +98,12 @@ public class app {
     return words.get(rng).toLowerCase();
   }
 
-  // public class Word {
-  //   char letter;
-  //   boolean revealed;
-  
-  //   public Word(char userInput) {
-  //     letter = userInput;
-  //   }
-  
-  //   public void checkLetter (char guess) {
-  //     if (guess == letter) {
-  //       revealed = true;
-  //     }
-  //   }
-  
-  //   public void printLetter() {
-  //     if (revealed == true) {
-  //       System.out.print(letter);
-  //     } else {
-  //       System.out.print("_");
-  //     }
-  //   }
-  // }
+  static void init() {
+    final ArrayList<String> words = readTxtFile("words.txt");
+    final String randomWord = getRandomWord(words);
+    Word newWord = new Word(randomWord);
+    System.out.println("Java CLI Hangman");
+    System.out.print("Your Word: ");
+    newWord.printWord();
+  }
 }
