@@ -10,9 +10,11 @@ public class app {
     ArrayList<Letter> letters = new ArrayList<Letter>();
     String guesses = "";
     int remainingGuesses = 10;
+    String fullWord;
 
     public Word (String newWord) {
       createWord(newWord);
+      fullWord = newWord;
     }
 
     public void printWord() {
@@ -31,6 +33,9 @@ public class app {
     }
 
     public void guessLetter(char letter) {
+      if (fullWord.indexOf(letter) == -1) {
+        remainingGuesses -= 1;
+      }
       for (int i = 0; i < letters.size(); i++) {
         letters.get(i).guessLetter(letter);
       }
@@ -65,10 +70,12 @@ public class app {
       }
     }
 
-    public void guessLetter(char guess) {
+    public boolean guessLetter(char guess) {
       if (guess == letter && revealed == false) {
         revealed = true;
+        return true;
       }
+      return false;
     }
   }
 
@@ -112,6 +119,7 @@ public class app {
 
   static void printWord(Word word) {
     if (word.remainingGuesses > 0) {
+      System.out.println("\nRemaining Guesses: " + word.remainingGuesses);
       System.out.print("\nYour Word: ");
       word.printWord();
       guess(word);
@@ -130,12 +138,10 @@ public class app {
 
   static void gameOver(Word word, boolean win) {
     if (win) {
-      System.out.print("You guessed the word: ");
-      word.printWord();
+      System.out.println("\nYou guessed the word: " + word.fullWord);
     } else {
-      System.out.println("You ran out of guesses!");
-      System.out.print("The word was: ");
-      word.printWord();
+      System.out.println("\nYou ran out of guesses!");
+      System.out.println("The word was: " + word.fullWord);
     }
     reInit();
   }
