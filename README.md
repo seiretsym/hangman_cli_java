@@ -25,7 +25,7 @@ A hangman game created by using class constructors for a Word that stores an Arr
 
 ## Demo Gifs
 bamazonCustomer<br>
-![Hangman CLI Demo](demo.gif)
+![Hangman CLI Demo](demo/demo.gif)
 
 ## Code Snippets
 >Class Constructor: Word
