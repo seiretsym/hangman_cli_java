@@ -8,9 +8,9 @@ public class app {
 
   static class Word {
     ArrayList<Letter> letters = new ArrayList<Letter>();
-    boolean revealed = false;
+    String guesses = "";
 
-    public Word (String newWord) {
+    public Word (final String newWord) {
       createWord(newWord);
     }
 
@@ -22,27 +22,26 @@ public class app {
       System.out.println(word);
     }
 
-    public void createWord(String word) {
+    public void createWord(final String word) {
       for (int i = 0; i < word.length(); i++) {
-        Letter temp = new Letter(word.charAt(i));
+        final Letter temp = new Letter(word.charAt(i));
         letters.add(temp);
       }
     }
 
-    public void guessLetter(char letter) {
+    public void guessLetter(final char letter) {
       for (int i = 0; i < letters.size(); i++) {
         letters.get(i).guessLetter(letter);
       }
     }
 
-    public void checkWord() {
+    public boolean checkWord() {
       for (int i = 0; i < letters.size(); i++) {
         if (letters.get(i).revealed == false) {
-          break;
-        } else {
-          revealed = true;
+          return false;
         }
       }
+      return true;
     }
   }
 
@@ -50,8 +49,11 @@ public class app {
     char letter;
     boolean revealed = false;
 
-    public Letter(char userInput) {
+    public Letter(final char userInput) {
       letter = userInput;
+      if (letter == ' ' || letter == '\'' || letter == '-') {
+        revealed = true;
+      }
     }
 
     public char printLetter() {
@@ -62,7 +64,7 @@ public class app {
       }
     }
 
-    public void guessLetter(char guess) {
+    public void guessLetter(final char guess) {
       if (guess == letter && revealed == false) {
         revealed = true;
       }
@@ -101,9 +103,64 @@ public class app {
   static void init() {
     final ArrayList<String> words = readTxtFile("words.txt");
     final String randomWord = getRandomWord(words);
-    Word newWord = new Word(randomWord);
+    final Word newWord = new Word(randomWord);
     System.out.println("Java CLI Hangman");
-    System.out.print("Your Word: ");
-    newWord.printWord();
+
+    printWord(newWord);
+  }
+
+  static void printWord(final Word word) {
+    System.out.print("\nYour Word: ");
+    word.printWord();
+    guess(word);
+  }
+
+  static void checkWord(final Word word) {
+    if (word.checkWord()) {
+      gameOver(word, true);
+    } else {
+      printWord(word);
+    }
+  }
+
+  static void gameOver(final Word word, final boolean win) {
+    if (win) {
+      System.out.print("You guessed the word: ");
+      word.printWord();
+    }
+  }
+
+  static void guess(final Word word) {
+    final Scanner userInput = new Scanner(System.in);
+    System.out.print("Letters Used: ");
+    printGuesses(word);
+    System.out.print("Your Guess: ");
+    String guess = userInput.nextLine().toLowerCase();
+    if (guess.length() > 1) {
+      System.out.println("Please input a single character.");
+      printWord(word);
+    } else {
+      final char letter = guess.charAt(0);
+      if (word.guesses.indexOf(letter) != -1) {
+        System.out.println("You've already guessed that letter!");
+        printWord(word);
+      } else {
+        word.guesses += letter;
+        word.guessLetter(letter);
+        checkWord(word);
+      }
+    }
+  }
+
+  static void printGuesses(final Word word) {
+    String guesses = "";
+    for (int i = 0; i < word.guesses.length(); i++) {
+      if (i != word.guesses.length() - 1) {
+        guesses += word.guesses.charAt(i) + ", ";
+      } else {
+        guesses += word.guesses.charAt(i);
+      }
+    }
+    System.out.println(guesses);
   }
 }
