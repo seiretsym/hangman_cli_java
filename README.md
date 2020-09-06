@@ -24,7 +24,6 @@ A hangman game created by using class constructors for a Word that stores an Arr
 - Input validation
 
 ## Demo Gifs
-bamazonCustomer<br>
 ![Hangman CLI Demo](demo/demo.gif)
 
 ## Code Snippets
